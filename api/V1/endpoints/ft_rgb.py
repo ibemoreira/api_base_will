@@ -4,8 +4,13 @@ import numpy as np
 
 router = APIRouter()
 
+def rgb_to_hex(r, g, b):
+    return '#{:02x}{:02x}{:02x}'.format(r, g, b)
+
+#print(rgb_to_hex(255, 99, 71))  # Output: #FF6347
+
 #Envia ft devolve RGB predominante. 
-@router.post("/cor-predominante")
+@router.post("/")
 async def cor_predominante(file: UploadFile):
     # Abre a imagem
     im = Image.open(file.file)
@@ -24,8 +29,9 @@ async def cor_predominante(file: UploadFile):
 
     # Obtém a cor predominante
     mode_rgb = (most_common_color[0]*32, most_common_color[1]*32, most_common_color[2]*32)
-
+    hex = rgb_to_hex(mode_rgb[0], mode_rgb[1], mode_rgb[2])
 
     return {
-        "cor_predominante": str(mode_rgb)
+        "cor_rgb": str(mode_rgb),
+        "cor_hex": str(hex)
         }
