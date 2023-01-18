@@ -40,7 +40,11 @@ async def cor_predominante(file: UploadFile):
         }
 
 @router.post("/alterar-cor")
-async def alterar_cor(corDesejada: List[int], corSubstituida: List[int],  tolerance: int, file: UploadFile):
+async def alterar_cor(corDesejada: str, corSubstituida: str,  tolerance: int, file: UploadFile):
+    #Convertendo as strings em lista de int
+    corDesejada = list(map(int, corDesejada.split(',')))
+    corSubstituida = list(map(int, corSubstituida.split(',')))
+    #
     im = Image.open(file.file).convert('RGB')
     data = np.array(im)
     vermelho, verde, azul = data.T
