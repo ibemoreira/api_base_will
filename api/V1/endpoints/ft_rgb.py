@@ -1,4 +1,7 @@
-from fastapi import APIRouter, File, UploadFile
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import StreamingResponse
+from typing import List
+import io
 from PIL import Image
 import numpy as np
 
@@ -35,3 +38,16 @@ async def cor_predominante(file: UploadFile):
         "cor_rgb": str(mode_rgb),
         "cor_hex": str(hex)
         }
+
+@router.post("/alterar-cor")
+async def alterar_cor(corDesejada: List[int], corSubstituida: List[int],  tolerance: int, file: UploadFile):
+    im = Image.open(file.file).convert('RGB')
+    data = np.array(im)
+    vermelho, verde, azul = data.T
+    condition = (vermelho >= corSubstituida[0]-tolerance) & (vermelho <= corSubstituida[0]+tolerance) & (verde >= corSubstituida[1]-tolerance) & (verde <= corSubstituida[1]+tolerance) & (azul >= corSubstituida[2]-tolerance) & (azul <= corSubstituida[2]+tolerance)
+    data[condition.T] = corDesejada
+    im2 = Image.fromarray(data)
+    img_io = io.BytesIO()
+    im2.save(img_io, 'JPEG', quality=70)
+    img_io.seek(0)
+    return StreamingResponse(img_io, media_type="image/jpeg")
