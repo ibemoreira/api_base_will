@@ -1,4 +1,5 @@
 from fastapi import FastAPI, File, UploadFile, APIRouter
+import tempfile
 from fastapi.responses import StreamingResponse
 from typing import List
 import io
@@ -56,6 +57,26 @@ async def alterar_cor(corDesejada: str, corSubstituida: str,  tolerance: int, fi
     img_io.seek(0)
     return StreamingResponse(img_io, media_type="image/jpeg")
 
-@router.post("/image")
-async def receive_image(file: UploadFile):
-    return StreamingResponse(file.file, media_type="image/jpeg")
+
+
+@router.post("/alterar-cor-url-temp")
+async def alterar_cor(corDesejada: str, corSubstituida: str,  tolerance: int, file: UploadFile):
+    #Convertendo as strings em lista de int
+    corDesejada = list(map(int, corDesejada.split(',')))
+    corSubstituida = list(map(int, corSubstituida.split(',')))
+    #
+    im = Image.open(file.file).convert('RGB')
+    data = np.array(im)
+    vermelho, verde, azul = data.T
+    condition = (vermelho >= corSubstituida[0]-tolerance) & (vermelho <= corSubstituida[0]+tolerance) & (verde >= corSubstituida[1]-tolerance) & (verde <= corSubstituida[1]+tolerance) & (azul >= corSubstituida[2]-tolerance) & (azul <= corSubstituida[2]+tolerance)
+    data[condition.T] = corDesejada
+    im2 = Image.fromarray(data)
+    img_io = io.BytesIO()
+    im2.save(img_io, 'JPEG', quality=70)
+    img_io.seek(0)
+    with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as img:
+        file_path = img.name
+        img.write(img_io.getvalue())
+    file_url = f"https://max-tinto-rgb.herokuapp.com/{os.path.basename(file_path)}"
+    return {"file_url": file_url,
+             "image": StreamingResponse(img_io, media_type="image/jpeg")}
