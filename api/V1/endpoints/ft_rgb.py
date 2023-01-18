@@ -55,3 +55,7 @@ async def alterar_cor(corDesejada: str, corSubstituida: str,  tolerance: int, fi
     im2.save(img_io, 'JPEG', quality=70)
     img_io.seek(0)
     return StreamingResponse(img_io, media_type="image/jpeg")
+
+@router.post("/image")
+async def receive_image(file: UploadFile):
+    return StreamingResponse(file.file, media_type="image/jpeg")
