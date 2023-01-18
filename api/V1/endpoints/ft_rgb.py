@@ -61,7 +61,7 @@ async def alterar_cor(corDesejada: str, corSubstituida: str,  tolerance: int, fi
 
 
 @router.post("/alterar-cor-url-temp")
-async def alterar_cor(corDesejada: str, corSubstituida: str,  tolerance: int, file: UploadFile):
+async def alterar_cor_url_temp(corDesejada: str, corSubstituida: str,  tolerance: int, file: UploadFile):
     #Convertendo as strings em lista de int
     corDesejada = list(map(int, corDesejada.split(',')))
     corSubstituida = list(map(int, corSubstituida.split(',')))
