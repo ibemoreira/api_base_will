@@ -3,6 +3,7 @@ import tempfile
 from fastapi.responses import StreamingResponse
 from typing import List
 import io
+import os
 from PIL import Image
 import numpy as np
 
