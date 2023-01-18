@@ -75,9 +75,9 @@ async def alterar_cor_url_temp(corDesejada: str, corSubstituida: str,  tolerance
     img_io = io.BytesIO()
     im2.save(img_io, 'JPEG', quality=70)
     img_io.seek(0)
+
     with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as img:
         file_path = img.name
         img.write(img_io.getvalue())
     file_url = f"https://max-tinto-rgb.herokuapp.com/{os.path.basename(file_path)}"
-    return {"file_url": file_url,
-             "image": StreamingResponse(img_io, media_type="image/jpeg")}
+    return {"file_url": file_url}
