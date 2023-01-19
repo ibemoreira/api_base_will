@@ -2,9 +2,11 @@ from fastapi import FastAPI
 
 from core.configs import settings
 from api.V1.api import api_router
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title='Tinto Max')
 app.include_router(api_router, prefix=settings.API_V1_SRT)
+app.mount("/static", StaticFiles(directory="static"))
 
 if __name__ == '__main__':
     import uvicorn

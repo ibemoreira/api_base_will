@@ -4,8 +4,11 @@ from fastapi.responses import StreamingResponse
 from typing import List
 import io
 import os
+import datetime
 from PIL import Image
 import numpy as np
+import uuid
+
 
 router = APIRouter()
 
@@ -75,9 +78,7 @@ async def alterar_cor_url_temp(corDesejada: str, corSubstituida: str,  tolerance
     img_io = io.BytesIO()
     im2.save(img_io, 'JPEG', quality=70)
     img_io.seek(0)
-
-    with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as img:
-        file_path = img.name
-        img.write(img_io.getvalue())
-    file_url = f"https://max-tinto-rgb.herokuapp.com/{os.path.basename(file_path)}"
-    return {"file_url": file_url}
+    file_name = f"{uuid.uuid4()}.jpg"
+    with open(f"static/{file_name}", "wb") as f:
+        f.write(img_io.getvalue())
+    return {"file_url": f"https://max-tinto-rgb.herokuapp.com/static/{file_name}"}
