@@ -8,9 +8,14 @@ import datetime
 from PIL import Image
 import numpy as np
 import uuid
-
+from datetime import timedelta
+from asyncio import sleep
 
 router = APIRouter()
+
+async def remove_file_after_time(file_path: str, wait_time: int):
+    await sleep(wait_time)
+    os.remove(file_path)
 
 def rgb_to_hex(r, g, b):
     return '#{:02x}{:02x}{:02x}'.format(r, g, b)
@@ -39,10 +44,20 @@ async def cor_predominante(file: UploadFile):
     mode_rgb = (most_common_color[0]*32, most_common_color[1]*32, most_common_color[2]*32)
     hex = rgb_to_hex(mode_rgb[0], mode_rgb[1], mode_rgb[2])
 
+    # Cria caminho para salvar imagem e gerar URL
+    file_path = os.path.join("static", f"{uuid.uuid4()}.jpg")
+    im.save(file_path)
+    file_url = f"https://max-tinto-rgb.herokuapp.com/{file_path}"
+
+    # Chama a função para remover o arquivo depois de um tempo
+    await remove_file_after_time(file_path, 1800)
+
     return {
         "cor_rgb": str(mode_rgb),
-        "cor_hex": str(hex)
-        }
+        "cor_hex": str(hex),
+        "file_url": file_url
+    }
+
 
 @router.post("/alterar-cor")
 async def alterar_cor(corDesejada: str, corSubstituida: str,  tolerance: int, file: UploadFile):
@@ -64,11 +79,9 @@ async def alterar_cor(corDesejada: str, corSubstituida: str,  tolerance: int, fi
 
 
 @router.post("/alterar-cor-url-temp")
-async def alterar_cor_url_temp(corDesejada: str, corSubstituida: str,  tolerance: int, file: UploadFile):
-    #Convertendo as strings em lista de int
+async def alterar_cor_url_temp(corDesejada: str, corSubstituida: str, tolerance: int, file: UploadFile):
     corDesejada = list(map(int, corDesejada.split(',')))
     corSubstituida = list(map(int, corSubstituida.split(',')))
-    #
     im = Image.open(file.file).convert('RGB')
     data = np.array(im)
     vermelho, verde, azul = data.T
@@ -78,7 +91,10 @@ async def alterar_cor_url_temp(corDesejada: str, corSubstituida: str,  tolerance
     img_io = io.BytesIO()
     im2.save(img_io, 'JPEG', quality=70)
     img_io.seek(0)
-    file_name = f"{uuid.uuid4()}.jpg"
-    with open(f"static/{file_name}", "wb") as f:
-        f.write(img_io.getvalue())
-    return {"file_url": f"https://max-tinto-rgb.herokuapp.com/static/{file_name}"}
+    with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as img:
+        file_path = img.name
+        img.write(img_io.getvalue())
+    file_url = f"https://max-tinto-rgb.herokuapp.com/{os.path.basename(file_path)}"
+    await remove_file_after_time(file_path, 1800)
+    return {"file_url": file_url}
+
