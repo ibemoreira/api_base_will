@@ -40,7 +40,7 @@ async def cor_predominante(file: UploadFile):
     hex = rgb_to_hex(mode_rgb[0], mode_rgb[1], mode_rgb[2])
     file_name = f"{uuid.uuid4()}.jpg"
     with open(f"static/{file_name}", "wb") as f:
-        f.write(file.file)
+        f.write(file.file.read())
 
     return {
         "cor_rgb": str(mode_rgb),
