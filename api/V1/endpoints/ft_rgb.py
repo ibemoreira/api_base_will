@@ -50,7 +50,7 @@ async def cor_predominante(file: UploadFile):
     file_url = f"https://max-tinto-rgb.herokuapp.com/{file_path}"
 
     # Chama a função para remover o arquivo depois de um tempo
-    await remove_file_after_time(file_path, 1800)
+    #await remove_file_after_time(file_path, 1800)
 
     return {
         "cor_rgb": str(mode_rgb),
@@ -95,6 +95,6 @@ async def alterar_cor_url_temp(corDesejada: str, corSubstituida: str, tolerance:
         file_path = img.name
         img.write(img_io.getvalue())
     file_url = f"https://max-tinto-rgb.herokuapp.com/{os.path.basename(file_path)}"
-    await remove_file_after_time(file_path, 1800)
+    #await remove_file_after_time(file_path, 1800)
     return {"file_url": file_url}
 
