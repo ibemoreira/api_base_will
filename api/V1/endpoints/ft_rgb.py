@@ -40,7 +40,7 @@ async def cor_predominante(file: UploadFile):
     hex = rgb_to_hex(mode_rgb[0], mode_rgb[1], mode_rgb[2])
 
     file_extension = os.path.splitext(file.filename)[1]
-    file_name = f"{uuid.uuid4()}.jpg"
+    file_name = f"{uuid.uuid4()}{file_extension}"
     img_io = io.BytesIO()
 
     if file_extension == ".jpg":
@@ -49,7 +49,7 @@ async def cor_predominante(file: UploadFile):
         im.save(img_io, 'PNG', quality=70)
     elif file_extension == ".gif":
         im.save(img_io, 'GIF', quality=70)
-        
+
     img_io.seek(0)
 
     with open(f"static/{file_name}", 'wb') as f:
